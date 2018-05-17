@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "short-description": "Benchmarking approximates aggreation queries",
+    "description": "Benchmarking approximates aggregation queries"
+  },
+  "indices": [
+    {
+      "name": "first_four_11_05_2018_13234",
+      "types": [
+        {
+          "name": "first_four_11_05_2018_13234",
+          "mapping": "mappings.json",
+          "documents": "first_four_11_05_2018_13234.json.bz2",
+          "document-count": 360,
+          "compressed-bytes": 1949,
+          "uncompressed-bytes": 52966
+        }
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "name": "index",
+      "operation-type": "index",
+      "bulk-size": 5613
+    },
+    {
+      "name": "force-merge",
+      "operation-type": "force-merge"
+    },
+    {
+      "name": "approximates-query",
+      "operation-type": "search",
+      "body": {
+        "query": {
+          "bool": {
+            "must": [
+              {
+                "terms": { "sel1": [1, 2, 3, 4] }
+              },
+              {
+                "terms": { "sel2": [1, 2, 4, 3] }
+              },
+              {
+                "terms": { "sel3": [1, 3, 2, 4] }
+              },
+              {
+                "terms": { "sel4": [1, 3, 4, 2] }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "challenges": [
+    {
+      "name": "approximates-challenge",
+      "description": "",
+      "index-settings": {
+        "index.number_of_replicas": 0
+      },
+      "schedule": [
+        {
+          "operation": "index",
+          "warmup-time-period": 120,
+          "clients": 8
+        },
+        {
+          "operation": "force-merge",
+          "clients": 1
+        },
+        {
+          "operation": "approximates-query",
+          "clients": 8,
+          "warmup-iterations": 10000,
+          "iterations": 10000,
+          "target-throughput": 100
+        }
+      ]
+    }
+  ]
+}
